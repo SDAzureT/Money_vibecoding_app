@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import RecordForm from './components/RecordForm.jsx'
 import Summary from './components/Summary.jsx'
 import RecordList from './components/RecordList.jsx'
+import CategoryStats from './components/CategoryStats.jsx'
 import { loadRecords, saveRecords, todayString } from './utils.js'
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
         onSave={saveRecord}
         onCancel={() => setEditing(null)}
       />
+      <CategoryStats records={monthRecords} />
       <RecordList
         records={monthRecords}
         editingId={editing?.id}
