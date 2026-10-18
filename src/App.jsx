@@ -3,6 +3,7 @@ import RecordForm from './components/RecordForm.jsx'
 import Summary from './components/Summary.jsx'
 import RecordList from './components/RecordList.jsx'
 import CategoryStats from './components/CategoryStats.jsx'
+import Backup from './components/Backup.jsx'
 import { loadRecords, saveRecords, todayString } from './utils.js'
 
 export default function App() {
@@ -32,6 +33,14 @@ export default function App() {
     if (editing?.id === id) setEditing(null)
   }
 
+  // 合并导入的记录：ID 相同的用备份里的版本覆盖
+  function importRecords(imported) {
+    const byId = new Map(records.map((r) => [r.id, r]))
+    for (const r of imported) byId.set(r.id, { ...r, note: r.note ?? '' })
+    setRecords([...byId.values()])
+    setEditing(null)
+  }
+
   function startEdit(record) {
     setEditing(record)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -57,6 +66,7 @@ export default function App() {
         onEdit={startEdit}
         onDelete={deleteRecord}
       />
+      <Backup records={records} onImport={importRecords} />
     </main>
   )
 }

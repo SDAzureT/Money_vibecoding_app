@@ -43,6 +43,21 @@ export function formatMonth(month) {
   return `${y} 年 ${Number(m)} 月`
 }
 
+// 检查导入的数据是不是合法的记录，防止坏数据弄坏 App
+export function isValidRecord(r) {
+  return (
+    r &&
+    typeof r.id === 'string' &&
+    (r.type === 'expense' || r.type === 'income') &&
+    Number.isInteger(r.amount) &&
+    r.amount > 0 &&
+    typeof r.category === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(r.date) &&
+    typeof r.createdAt === 'string' &&
+    (r.note === undefined || typeof r.note === 'string')
+  )
+}
+
 // 12345 -> "¥12,345"
 export function formatYen(amount) {
   return '¥' + amount.toLocaleString('ja-JP')
