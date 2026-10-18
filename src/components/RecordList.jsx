@@ -1,8 +1,8 @@
 import { formatYen } from '../utils.js'
 
-export default function RecordList({ records, onDelete }) {
+export default function RecordList({ records, editingId, onEdit, onDelete }) {
   if (records.length === 0) {
-    return <p className="empty">还没有记录，先记一笔吧</p>
+    return <p className="empty">这个月还没有记录</p>
   }
 
   // 按日期从新到旧；同一天的按创建时间从新到旧
@@ -19,14 +19,14 @@ export default function RecordList({ records, onDelete }) {
   return (
     <ul className="card list">
       {sorted.map((r) => (
-        <li key={r.id}>
-          <div className="list-main">
+        <li key={r.id} className={r.id === editingId ? 'selected' : ''}>
+          <button className="list-main" onClick={() => onEdit(r)} title="点击编辑">
             <span className="category">{r.category}</span>
             <span className="meta">
               {r.date}
               {r.note && ` · ${r.note}`}
             </span>
-          </div>
+          </button>
           <strong className={r.type}>
             {r.type === 'income' ? '+' : '-'}
             {formatYen(r.amount)}

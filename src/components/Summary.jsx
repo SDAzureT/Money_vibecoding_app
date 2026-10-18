@@ -1,6 +1,6 @@
-import { formatYen } from '../utils.js'
+import { formatMonth, formatYen, shiftMonth, todayString } from '../utils.js'
 
-export default function Summary({ records, month }) {
+export default function Summary({ records, month, onChangeMonth }) {
   let income = 0
   let expense = 0
   for (const r of records) {
@@ -8,10 +8,24 @@ export default function Summary({ records, month }) {
     else expense += r.amount
   }
   const balance = income - expense
+  const thisMonth = todayString().slice(0, 7)
 
   return (
     <section className="card summary">
-      <h2>{month.replace('-', ' 年 ')} 月</h2>
+      <div className="month-nav">
+        <button onClick={() => onChangeMonth(shiftMonth(month, -1))} aria-label="上个月">
+          ‹
+        </button>
+        <h2>{formatMonth(month)}</h2>
+        <button onClick={() => onChangeMonth(shiftMonth(month, 1))} aria-label="下个月">
+          ›
+        </button>
+        {month !== thisMonth && (
+          <button className="today" onClick={() => onChangeMonth(thisMonth)}>
+            回到本月
+          </button>
+        )}
+      </div>
       <div className="summary-row">
         <div>
           <span>收入</span>

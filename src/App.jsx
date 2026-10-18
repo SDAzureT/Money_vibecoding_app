@@ -7,30 +7,54 @@ import { loadRecords, saveRecords, todayString } from './utils.js'
 export default function App() {
   // 启动时从 localStorage 读取一次
   const [records, setRecords] = useState(loadRecords)
+  // 当前查看的月份，"2026-10" 格式
+  const [month, setMonth] = useState(() => todayString().slice(0, 7))
+  // 正在编辑的记录；null 表示在新建
+  const [editing, setEditing] = useState(null)
 
   // records 每次变化都自动保存
   useEffect(() => {
     saveRecords(records)
   }, [records])
 
-  function addRecord(record) {
-    setRecords([record, ...records])
+  function saveRecord(record) {
+    if (records.some((r) => r.id === record.id)) {
+      setRecords(records.map((r) => (r.id === record.id ? record : r)))
+    } else {
+      setRecords([record, ...records])
+    }
+    setEditing(null)
   }
 
   function deleteRecord(id) {
     setRecords(records.filter((r) => r.id !== id))
+    if (editing?.id === id) setEditing(null)
   }
 
-  // "2026-10" 这样的前缀，用来筛选本月记录
-  const thisMonth = todayString().slice(0, 7)
-  const monthRecords = records.filter((r) => r.date.startsWith(thisMonth))
+  function startEdit(record) {
+    setEditing(record)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const monthRecords = records.filter((r) => r.date.startsWith(month))
 
   return (
     <main className="app">
       <h1>记账本</h1>
-      <Summary records={monthRecords} month={thisMonth} />
-      <RecordForm onAdd={addRecord} />
-      <RecordList records={records} onDelete={deleteRecord} />
+      <Summary records={monthRecords} month={month} onChangeMonth={setMonth} />
+      {/* key 变化时表单会重新创建，从而填入要编辑的记录 */}
+      <RecordForm
+        key={editing?.id ?? 'new'}
+        initial={editing}
+        onSave={saveRecord}
+        onCancel={() => setEditing(null)}
+      />
+      <RecordList
+        records={monthRecords}
+        editingId={editing?.id}
+        onEdit={startEdit}
+        onDelete={deleteRecord}
+      />
     </main>
   )
 }

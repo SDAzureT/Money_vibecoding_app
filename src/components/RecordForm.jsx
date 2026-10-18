@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { CATEGORIES, todayString } from '../utils.js'
 
-export default function RecordForm({ onAdd }) {
-  const [type, setType] = useState('expense')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState(CATEGORIES.expense[0])
-  const [date, setDate] = useState(todayString)
-  const [note, setNote] = useState('')
+// initial 为 null 时是新建，否则是编辑这条记录
+export default function RecordForm({ initial, onSave, onCancel }) {
+  const [type, setType] = useState(initial?.type ?? 'expense')
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : '')
+  const [category, setCategory] = useState(initial?.category ?? CATEGORIES.expense[0])
+  const [date, setDate] = useState(initial?.date ?? todayString())
+  const [note, setNote] = useState(initial?.note ?? '')
   const [error, setError] = useState('')
 
   // 切换收入/支出时，分类也要换成对应的列表
@@ -24,14 +25,14 @@ export default function RecordForm({ onAdd }) {
       return
     }
 
-    onAdd({
-      id: crypto.randomUUID(),
+    onSave({
+      id: initial?.id ?? crypto.randomUUID(),
       type,
       amount: Number(amount),
       category,
       date,
       note: note.trim(),
-      createdAt: new Date().toISOString(),
+      createdAt: initial?.createdAt ?? new Date().toISOString(),
     })
 
     // 清空金额和备注，保留类型、分类、日期，方便连续记账
@@ -40,8 +41,15 @@ export default function RecordForm({ onAdd }) {
     setError('')
   }
 
+  // 编辑旧数据时，分类可能已经不在列表里了，也要能显示出来
+  const options = CATEGORIES[type].includes(category)
+    ? CATEGORIES[type]
+    : [...CATEGORIES[type], category]
+
   return (
-    <form className="card form" onSubmit={handleSubmit}>
+    <form className={initial ? 'card form editing' : 'card form'} onSubmit={handleSubmit}>
+      {initial && <p className="editing-label">正在编辑记录</p>}
+
       <div className="type-switch">
         <button
           type="button"
@@ -72,7 +80,7 @@ export default function RecordForm({ onAdd }) {
       <label>
         分类
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES[type].map((c) => (
+          {options.map((c) => (
             <option key={c}>{c}</option>
           ))}
         </select>
@@ -90,7 +98,16 @@ export default function RecordForm({ onAdd }) {
 
       {error && <p className="error">{error}</p>}
 
-      <button type="submit" className="submit">记一笔</button>
+      <div className="form-actions">
+        {initial && (
+          <button type="button" className="cancel" onClick={onCancel}>
+            取消
+          </button>
+        )}
+        <button type="submit" className="submit">
+          {initial ? '保存修改' : '记一笔'}
+        </button>
+      </div>
     </form>
   )
 }

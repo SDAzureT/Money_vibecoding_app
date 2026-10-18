@@ -30,6 +30,19 @@ export function todayString() {
   return `${y}-${m}-${day}`
 }
 
+// "2026-10" 加减月份：shiftMonth("2026-01", -1) -> "2025-12"
+export function shiftMonth(month, delta) {
+  const [y, m] = month.split('-').map(Number)
+  const d = new Date(y, m - 1 + delta, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+// "2026-10" -> "2026 年 10 月"
+export function formatMonth(month) {
+  const [y, m] = month.split('-')
+  return `${y} 年 ${Number(m)} 月`
+}
+
 // 12345 -> "¥12,345"
 export function formatYen(amount) {
   return '¥' + amount.toLocaleString('ja-JP')
