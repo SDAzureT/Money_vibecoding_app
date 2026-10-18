@@ -1,6 +1,7 @@
+import Budget from './Budget.jsx'
 import { formatMonth, formatYen, shiftMonth, todayString } from '../utils.js'
 
-export default function Summary({ records, month, onChangeMonth }) {
+export default function Summary({ records, month, onChangeMonth, budget, onChangeBudget }) {
   let income = 0
   let expense = 0
   for (const r of records) {
@@ -42,6 +43,7 @@ export default function Summary({ records, month, onChangeMonth }) {
           </strong>
         </div>
       </div>
+      <Budget budget={budget} spent={expense} onChange={onChangeBudget} />
     </section>
   )
 }

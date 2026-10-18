@@ -17,14 +17,14 @@ function csvField(value) {
   return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s
 }
 
-export default function Backup({ records, onImport }) {
+export default function Backup({ records, budget, onImport }) {
   const fileInput = useRef(null)
   const [message, setMessage] = useState('')
 
   function exportJson() {
     download(
       `money-app-backup-${todayString()}.json`,
-      JSON.stringify({ app: 'money-app', version: 1, records }, null, 2),
+      JSON.stringify({ app: 'money-app', version: 1, records, budget }, null, 2),
       'application/json',
     )
     setMessage(`已导出 ${records.length} 条记录`)
@@ -65,7 +65,10 @@ export default function Backup({ records, onImport }) {
       if (!confirm(`将导入 ${valid.length} 条记录。\nID 相同的记录会被备份里的版本覆盖，其他现有记录保留。继续吗？`)) {
         return
       }
-      onImport(valid)
+      // 预算只接受正整数或 null；没有或不合法时不改动当前预算
+      const b = data.budget
+      const importedBudget = b === null || (Number.isInteger(b) && b > 0) ? b : undefined
+      onImport(valid, importedBudget)
       setMessage(`导入了 ${valid.length} 条记录` + (skipped ? `，跳过 ${skipped} 条无效数据` : ''))
     } catch (err) {
       setMessage(`导入失败：${err.message}`)

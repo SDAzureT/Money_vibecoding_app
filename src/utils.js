@@ -1,6 +1,8 @@
 // localStorage 里保存记录用的 key
 const STORAGE_KEY = 'money-app:records'
 
+const BUDGET_KEY = 'money-app:budget'
+
 export const CATEGORIES = {
   expense: ['餐饮', '交通', '购物', '日用', '娱乐', '房租', '其他'],
   income: ['工资', '打工', '奖学金', '其他'],
@@ -18,6 +20,21 @@ export function loadRecords() {
 
 export function saveRecords(records) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
+}
+
+// 每月预算（日元整数）；没设置时为 null
+export function loadBudget() {
+  try {
+    const value = JSON.parse(localStorage.getItem(BUDGET_KEY))
+    return Number.isInteger(value) && value > 0 ? value : null
+  } catch {
+    return null
+  }
+}
+
+export function saveBudget(budget) {
+  if (budget === null) localStorage.removeItem(BUDGET_KEY)
+  else localStorage.setItem(BUDGET_KEY, JSON.stringify(budget))
 }
 
 // 返回本地日期 YYYY-MM-DD。
